@@ -1,0 +1,6 @@
+# gRPC
+name : "Correlation ID generator"
+rpc-port: 7891
+
+#Generator
+machine-id: 1

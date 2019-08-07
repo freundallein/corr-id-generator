@@ -1,0 +1,13 @@
+//corr-id-generator.proto
+syntax = "proto3";
+
+service CorrelationIdGenerator {
+    rpc GetCorrelationId(GetRequest) returns (Response) {}
+}
+
+message GetRequest {
+}
+
+message Response {
+    uint64 correlationId = 1;
+}
