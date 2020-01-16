@@ -60,7 +60,7 @@ func main() {
 		RpcPort: port,
 		MachineId: uint8(machineId),
 	}
-	serv, err := service.NewService(config)
+	serv, err := service.New(config)
 	if err != nil {
 		log.Fatalf("Can't create gRPC service: %s", err)
 	}

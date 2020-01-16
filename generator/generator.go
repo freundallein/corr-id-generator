@@ -18,7 +18,7 @@ func startCounter(results chan uint16) {
 	}
 }
 
-func NewGenerator(id uint8) *ComplexGenerator {
+func New(id uint8) *ComplexGenerator {
 	counter := make(chan uint16)
 	go startCounter(counter)
 	return &ComplexGenerator{machineId: id, counter: counter}

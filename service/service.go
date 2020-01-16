@@ -25,8 +25,8 @@ func (service *CorrIDService) GetCorrelationId(ctx context.Context, request *pb.
 	return &pb.Response{CorrelationId: correlationId}, nil
 }
 
-func NewService(config *settings.Settings) (*CorrIDService, error) {
-	gen := generator.NewGenerator(config.MachineId)
+func New(config *settings.Settings) (*CorrIDService, error) {
+	gen := generator.New(config.MachineId)
 	return &CorrIDService{config: config, generator: gen}, nil
 }
 

@@ -1,0 +1,27 @@
+version: "3.5"
+
+networks:
+  network:
+    name: example-network
+    driver: bridge
+
+services:
+  corridgen_1:
+    image: freundallein/corridgen:latest
+    container_name: corridgen_1
+    restart: always
+    environment: 
+      - PORT=7891
+      - MACHINE_ID=1
+    networks: 
+      - network
+
+  corridgen_2:
+    image: freundallein/corridgen:latest
+    container_name: corridgen_2
+    restart: always
+    environment: 
+      - PORT=7891
+      - MACHINE_ID=2
+    networks: 
+      - network
