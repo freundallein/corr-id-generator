@@ -1,48 +1,71 @@
 package main
 
 import (
-	"flag"
 	"fmt"
+	"log"
 	"os"
+	"strconv"
+	"time"
 
-	"gitlab.com/freundallein/corr-id-generator/service"
-	"gitlab.com/freundallein/corr-id-generator/settings"
-
-	log "gitlab.com/freundallein/gologger"
-	configuration "gitlab.com/freundallein/gonfig"
+	"github.com/freundallein/corr-id-generator/service"
+	"github.com/freundallein/corr-id-generator/settings"
 )
 
-var configType = flag.String("config-type", "default", "Choose default, local or external")
+const (
+	timeFormat   = "02.01.2006 15:04:05"
+	machineIdKey = "MACHINE_ID"
+	portKey      = "PORT"
+)
 
-// Init - init logger and config
-func Init(serviceName string) *settings.Settings {
-	log.InitLogger(serviceName)
-	log.Debug("Logger initiated")
-	flag.Parse()
-	configurator := configuration.New(*configType)
-	log.Debug(fmt.Sprintf("%s configurator created", configurator.GetName()))
-	config := &settings.Settings{Name: serviceName}
-	err := configurator.SetConfigStruct(config)
-	if err != nil {
-		log.Fatal(fmt.Sprintf("Can't set config struct: %s", err))
+type logWriter struct {
+}
+
+// Write - custom logger formatting
+func (writer logWriter) Write(bytes []byte) (int, error) {
+	msg := fmt.Sprintf("%s | [corridgen] %s", time.Now().UTC().Format(timeFormat), string(bytes))
+	return fmt.Print(msg)
+}
+
+func getEnv(key string, fallback string) (string, error) {
+	if value := os.Getenv(key); value != "" {
+		return value, nil
 	}
-	err = configurator.ReadConfig()
-	if err != nil {
-		log.Fatal(fmt.Sprintf("Can't read config: %s", err))
+	return fallback, nil
+}
+
+func getIntEnv(key string, fallback int) (int, error) {
+	if v := os.Getenv(key); v != "" {
+		i, err := strconv.ParseInt(v, 10, 64)
+		if err != nil {
+			return fallback, err
+		}
+		return int(i), nil
 	}
-	log.Debug("Read config")
-	return config
+	return fallback, nil
 }
 
 func main() {
-	config := Init(os.Getenv("SERVICE_NAME"))
-	log.Debug("Create service")
-	service, err := service.NewService(config)
+	log.SetFlags(0)
+	log.SetOutput(new(logWriter))
+
+	port, err := getEnv(portKey, "7891")
 	if err != nil {
-		log.Fatal(fmt.Sprintf("Can't create gRPC service: %s", err))
+		log.Fatalf("[config] %s", err.Error())
 	}
-	log.Debug("Start service")
-	err = service.Start()
+	machineId, err := getIntEnv(machineIdKey, 1)
+	if err != nil {
+		log.Fatalf("[config] %s", err.Error())
+	}
+	config := &settings.Settings{
+		RpcPort: port,
+		MachineId: uint8(machineId),
+	}
+	serv, err := service.NewService(config)
+	if err != nil {
+		log.Fatalf("Can't create gRPC service: %s", err)
+	}
+	log.Println("Starting service...")
+	err = serv.Start()
 	if err != nil {
 		log.Fatal(fmt.Sprintf("With gRPC service: %s", err))
 	}

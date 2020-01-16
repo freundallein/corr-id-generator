@@ -1,15 +1,27 @@
-FROM debian:stretch-slim
-RUN useradd -u 10001 runner
+FROM golang:alpine AS intermediate
+
+RUN apk update && \
+    apk add --no-cache git make
+
+RUN adduser -D -g '' corridgen
+
+WORKDIR $GOPATH/src/
+
+COPY . .
+
+RUN go mod download
+RUN go mod verify
+RUN make build
 
 FROM scratch
 
-ENV SERVICE_NAME="CorrId"
+ENV PORT=7891
 
-WORKDIR /app
-ADD bin/corr-id-generator /app/
-ADD settings/local.yml /app/
+COPY --from=intermediate /go/src/bin/corridgen /go/bin/corridgen
+COPY --from=intermediate /etc/passwd /etc/passwd
 
-COPY --from=0 /etc/passwd /etc/passwd
-USER runner
+USER corridgen
 
-ENTRYPOINT ["/app/corr-id-generator", "-config-type=local", "-settings=local.yml"]
+WORKDIR /go/bin
+
+CMD ["/go/bin/corridgen"]
