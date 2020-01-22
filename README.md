@@ -1,5 +1,6 @@
 # corr-id-generator
 [![Build Status](https://travis-ci.org/freundallein/corr-id-generator.svg?branch=master)](https://travis-ci.org/freundallein/corr-id-generator)
+[![Go Report Card](https://goreportcard.com/badge/github.com/freundallein/corr-id-generator)](https://goreportcard.com/report/github.com/freundallein/corr-id-generator)
 
 Correlation ID generator
 
