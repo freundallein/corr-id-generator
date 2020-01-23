@@ -29,7 +29,7 @@ func TestGetId(t *testing.T) {
 	N := 100000
 	gen := New(uint8(1))
 	curr := gen.GetId()
-	for i:=0; i < N; i++ {
+	for i := 0; i < N; i++ {
 		val := gen.GetId()
 		if val == curr {
 			t.Error("id is not unique")

@@ -57,7 +57,7 @@ func main() {
 		log.Fatalf("[config] %s", err.Error())
 	}
 	config := &settings.Settings{
-		RpcPort: port,
+		RpcPort:   port,
 		MachineId: uint8(machineId),
 	}
 	serv, err := service.New(config)
